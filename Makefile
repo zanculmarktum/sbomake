@@ -287,12 +287,13 @@ fetch:
 		echo "==> Fetching $${i##*/}..."; \
 		while :; do \
 			curl -L -R -C - -Y 1 -y 10 -k -g -o "$${i##*/}".part "$$i"; \
-			if [ "$$?" = "0" ]; then \
+			exitcode="$$?"; \
+			if [ "$$exitcode" = "0" ]; then \
 				mv "$${i##*/}".part "$${i##*/}"; \
-			elif [ "$$?" = "33" ]; then \
+			elif [ "$$exitcode" = "33" ]; then \
 				rm -f "$${i##*/}".part; \
 				continue; \
-			elif [ "$$?" = "28" -o "$$?" = "56" ]; then \
+			elif [ "$$exitcode" = "28" -o "$$exitcode" = "56" ]; then \
 				continue; \
 			else \
 				exit 1; \
