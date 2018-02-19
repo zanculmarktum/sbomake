@@ -246,6 +246,7 @@ clean:
 _depends:
 	@. ./$(package).info; \
 	for i in $$REQUIRES; do \
+		[ "$$i" = "%README%" ] && continue; \
 		path=$$($(MAKE) -s esearch name=$$i); \
 		( cd $$path && $(MAKE) -s $@ ); \
 		echo $$path; \
