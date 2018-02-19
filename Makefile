@@ -19,7 +19,7 @@ ifeq ($(cwd), .)
 cmds += link delink
 endif
 ifeq ($(cwd), ../..)
-cmds += install deinstall clean list-depends list-depends-reverse
+cmds += fetch install deinstall clean list-depends list-depends-reverse
 endif
 
 ifeq ($(cwd), ../..)
@@ -267,6 +267,38 @@ list-depends-reverse:
 		j="$${j%-*}"; \
 		j="$${j%-*}"; \
 		echo $$j; \
+	done
+
+fetch:
+	@[ -f "$(package).info" ] || git checkout $(package).info; \
+	. ./$(package).info; \
+	url="$$DOWNLOAD"; \
+	if [ "$$(uname -m)" = "x86_64" -a -n "$$DOWNLOAD_x86_64" ]; then \
+		url="$$DOWNLOAD_x86_64"; \
+	fi; \
+	if [ "$$url" = "UNSUPPORTED" ]; then \
+		echo -e "\e[0;31m--> Your architecture ($$(uname -m)) is not supported\e[0m" >&2; \
+		exit 1; \
+	fi; \
+	mkdir -p $(DISTDIR); \
+	cd $(DISTDIR); \
+	for i in $$url; do \
+		[ -f "$${i##*/}" ] && continue; \
+		echo "==> Fetching $${i##*/}..."; \
+		while :; do \
+			curl -L -R -C - -Y 1 -y 10 -k -g -o "$${i##*/}".part "$$i"; \
+			if [ "$$?" = "0" ]; then \
+				mv "$${i##*/}".part "$${i##*/}"; \
+			elif [ "$$?" = "33" ]; then \
+				rm -f "$${i##*/}".part; \
+				continue; \
+			elif [ "$$?" = "28" -o "$$?" = "56" ]; then \
+				continue; \
+			else \
+				exit 1; \
+			fi; \
+			break; \
+		done; \
 	done
 endif # ifneq ($(cwd), ../..)
 

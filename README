@@ -30,6 +30,10 @@ Usage:
     $ cd $(make search name=foo)
     $ make list-depends
 
+  To fetch a package:
+    $ cd $(make search name=foo)
+    $ make fetch
+
   To build a package:
     $ cd $(make search name=foo)
     $ make
