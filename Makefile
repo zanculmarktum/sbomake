@@ -119,8 +119,16 @@ all:
 		done; \
 		\
 		echo "==> Building..."; \
+		FAKEROOT=""; \
+		if [ "$$(id -u)" != "0" ]; then \
+			which fakeroot >/dev/null 2>&1 && FAKEROOT=fakeroot; \
+		fi; \
 		[ -x "$(package).SlackBuild" ] || chmod +x $(package).SlackBuild; \
-		TMP="$(abspath $(WORKDIR))" OUTPUT="$(abspath $(PKGSDIR))" PKGTYPE="txz" ./$(package).SlackBuild; \
+		PATH=/usr/local/sbin:/usr/sbin:/sbin:$$PATH \
+		TMP="$(abspath $(WORKDIR))" \
+		OUTPUT="$(abspath $(PKGSDIR))" \
+		PKGTYPE="txz" \
+		$$FAKEROOT ./$(package).SlackBuild; \
 	fi
 
 install: all
