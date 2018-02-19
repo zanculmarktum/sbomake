@@ -37,7 +37,8 @@ all:
 	echo "       $(MAKE) help" >&2
 else
 all:
-	@. ./$(package).info; \
+	@[ -f "$(package).info" ] || git checkout $(package).info; \
+	. ./$(package).info; \
 	eval $$(grep '^\(BUILD\|TAG\)=' $(package).SlackBuild); \
 	case "$$( uname -m )" in \
 		i?86) ARCH="i?86" ;; \
@@ -132,7 +133,8 @@ all:
 	fi
 
 install: all
-	@. ./$(package).info; \
+	@[ -f "$(package).info" ] || git checkout $(package).info; \
+	. ./$(package).info; \
 	eval $$(grep '^\(BUILD\|TAG\)=' $(package).SlackBuild); \
 	case "$$( uname -m )" in \
 		i?86) ARCH="i?86" ;; \
@@ -191,7 +193,8 @@ install: all
 	fi
 
 deinstall:
-	@. ./$(package).info; \
+	@[ -f "$(package).info" ] || git checkout $(package).info; \
+	. ./$(package).info; \
 	eval $$(grep '^\(BUILD\|TAG\)=' $(package).SlackBuild); \
 	case "$$( uname -m )" in \
 		i?86) ARCH="i?86" ;; \
@@ -244,7 +247,8 @@ clean:
 	done
 
 _depends:
-	@. ./$(package).info; \
+	@[ -f "$(package).info" ] || git checkout $(package).info; \
+	. ./$(package).info; \
 	for i in $$REQUIRES; do \
 		[ "$$i" = "%README%" ] && continue; \
 		path=$$($(MAKE) -s esearch name=$$i); \
