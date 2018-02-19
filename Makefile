@@ -75,7 +75,7 @@ all:
 			else \
 				echo "--> No sources were found in $(DISTDIR)" >&2; \
 			fi; \
-			false; \
+			exit 1; \
 		fi; \
 		if rmdir $(DISTDIR)/ >/dev/null 2>&1; then \
 			if [ -t 1 ]; then \
@@ -83,7 +83,7 @@ all:
 			else \
 				echo "--> No sources were found in $(DISTDIR)" >&2; \
 			fi; \
-			false; \
+			exit 1; \
 		fi; \
 		\
 		echo "==> Preparing..."; \
