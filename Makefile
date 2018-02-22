@@ -19,7 +19,7 @@ ifeq ($(cwd), .)
 cmds += link delink
 endif
 ifeq ($(cwd), ../..)
-cmds += fetch install deinstall clean list-depends list-depends-reverse
+cmds += fetch md5 install deinstall clean list-depends list-depends-reverse
 endif
 
 ifeq ($(cwd), ../..)
@@ -300,6 +300,52 @@ fetch:
 			fi; \
 			break; \
 		done; \
+	done
+
+md5:
+	@if [ ! -d "$(DISTDIR)" ]; then \
+		if [ -t 1 ]; then \
+			echo -e "\e[0;31m--> No sources were found in $(DISTDIR)\e[0m" >&2; \
+		else \
+			echo "--> No sources were found in $(DISTDIR)" >&2; \
+		fi; \
+		exit 1; \
+	fi; \
+	if rmdir $(DISTDIR)/ >/dev/null 2>&1; then \
+		if [ -t 1 ]; then \
+			echo -e "\e[0;31m--> No sources were found in $(DISTDIR)\e[0m" >&2; \
+		else \
+			echo "--> No sources were found in $(DISTDIR)" >&2; \
+		fi; \
+		exit 1; \
+	fi; \
+	\
+	[ -f "$(package).info" ] || git checkout $(package).info; \
+	. ./$(package).info; \
+	\
+	url="$$DOWNLOAD"; \
+	if [ "$$(uname -m)" = "x86_64" -a -n "$$DOWNLOAD_x86_64" ]; then \
+		url="$$DOWNLOAD_x86_64"; \
+	fi; \
+	if [ "$$url" = "UNSUPPORTED" ]; then \
+		echo -e "\e[0;31m--> Your architecture ($$(uname -m)) is not supported\e[0m" >&2; \
+		exit 1; \
+	fi; \
+	\
+	hash="$$MD5SUM"; \
+	if [ "$$(uname -m)" = "x86_64" -a -n "$$MD5SUM_x86_64" ]; then \
+		hash="$$MD5SUM_x86_64"; \
+	fi; \
+	\
+	i=0; \
+	for a in $$url; do \
+		j=0; \
+		for b in $$hash; do \
+			[ "$$i" -eq "$$j" ] && break; \
+			j=$$(($$j+1)); \
+		done; \
+		echo "$$b $(DISTDIR)/$${a##*/}" | md5sum -c; \
+		i=$$(($$i+1)); \
 	done
 endif # ifneq ($(cwd), ../..)
 

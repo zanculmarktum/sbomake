@@ -34,6 +34,10 @@ Usage:
     $ cd $(make search name=foo)
     $ make fetch
 
+  To verify the downloaded sources via `make fetch`:
+    $ cd $(make search name=foo)
+    $ make md5
+
   To build a package:
     $ cd $(make search name=foo)
     $ make
