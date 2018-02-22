@@ -19,7 +19,7 @@ ifeq ($(cwd), .)
 cmds += link delink
 endif
 ifeq ($(cwd), ../..)
-cmds += fetch md5 install deinstall clean list-depends list-depends-reverse
+cmds += fetch md5 dist-clean install deinstall clean list-depends list-depends-reverse
 endif
 
 ifeq ($(cwd), ../..)
@@ -346,6 +346,53 @@ md5:
 		done; \
 		echo "$$b $(DISTDIR)/$${a##*/}" | md5sum -c; \
 		i=$$(($$i+1)); \
+	done
+
+dist-clean:
+	@if [ ! -d "$(DISTDIR)" ]; then \
+		exit 0; \
+	fi; \
+	if rmdir $(DISTDIR)/ >/dev/null 2>&1; then \
+		exit 0; \
+	fi; \
+	[ -f "$(package).info" ] || git checkout $(package).info; \
+	. ./$(package).info; \
+	url="$$DOWNLOAD"; \
+	if [ "$$(uname -m)" = "x86_64" -a -n "$$DOWNLOAD_x86_64" ]; then \
+		url="$$DOWNLOAD_x86_64"; \
+	fi; \
+	if [ "$$url" = "UNSUPPORTED" ]; then \
+		echo -e "\e[0;31m--> Your architecture ($$(uname -m)) is not supported\e[0m" >&2; \
+		exit 1; \
+	fi; \
+	\
+	echo "==> Cleaning $(DISTDIR)..."; \
+	cd $(DISTDIR); \
+	for i in .* *; do \
+		[ "$$i" = "." -o "$$i" = ".." ] && continue; \
+		found=false; \
+		for j in $$url; do \
+			if [ "$$i" = "$${j##*/}" ]; then \
+				found=true; \
+				break; \
+			fi; \
+		done; \
+		if ! $$found; then \
+			k=""; \
+			if [ -d "$$i" ]; then \
+				k="/"; \
+			fi; \
+			rm -Rf $$i; \
+			if [ "$$?" = "0" ]; then \
+				echo " => $$i$$k deleted"; \
+			else \
+				if [ -t 1 ]; then \
+					echo -e "\e[0;31m -> $$i$$k can't be deleted\e[0m"; \
+				else \
+					echo " -> $$i$$k can't be deleted"; \
+				fi; \
+			fi; \
+		fi; \
 	done
 endif # ifneq ($(cwd), ../..)
 

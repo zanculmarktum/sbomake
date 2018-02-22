@@ -38,6 +38,10 @@ Usage:
     $ cd $(make search name=foo)
     $ make md5
 
+  To remove sources that don't exist in `.info` file:
+    $ cd $(make search name=foo)
+    $ make dist-clean
+
   To build a package:
     $ cd $(make search name=foo)
     $ make
