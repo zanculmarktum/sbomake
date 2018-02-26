@@ -39,6 +39,7 @@ else
 all:
 	@[ -f "$(package).info" ] || git checkout $(package).info; \
 	. ./$(package).info; \
+	[ -f "$(package).SlackBuild" ] || git checkout $(package).SlackBuild; \
 	eval $$(grep '^\(BUILD\|TAG\)=' $(package).SlackBuild); \
 	case "$$( uname -m )" in \
 		i?86) ARCH="i?86" ;; \
@@ -135,6 +136,7 @@ all:
 install: all
 	@[ -f "$(package).info" ] || git checkout $(package).info; \
 	. ./$(package).info; \
+	[ -f "$(package).SlackBuild" ] || git checkout $(package).SlackBuild; \
 	eval $$(grep '^\(BUILD\|TAG\)=' $(package).SlackBuild); \
 	case "$$( uname -m )" in \
 		i?86) ARCH="i?86" ;; \
@@ -195,6 +197,7 @@ install: all
 deinstall:
 	@[ -f "$(package).info" ] || git checkout $(package).info; \
 	. ./$(package).info; \
+	[ -f "$(package).SlackBuild" ] || git checkout $(package).SlackBuild; \
 	eval $$(grep '^\(BUILD\|TAG\)=' $(package).SlackBuild); \
 	case "$$( uname -m )" in \
 		i?86) ARCH="i?86" ;; \
