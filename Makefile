@@ -60,13 +60,13 @@ all:
 	if $$found && [ ! "$(force)" = "true" ]; then \
 		echo "==> Already built: $$i"; \
 	else \
-		MODS=$$(git status -s . | grep '^.[MADRCU]'); \
-		if [ -n "$$MODS" ]; then \
+		DELETED=$$(git diff-files --name-only --diff-filter=D --relative); \
+		if [ -n "$$DELETED" ]; then \
 			echo "==> Restoring upstream files..."; \
-			for i in $$(echo "$$MODS" | sed 's/^.. //'); do \
+			for i in $$DELETED; do \
 				echo " => $$i"; \
 			done; \
-			git checkout .; \
+			git checkout $$DELETED; \
 		fi; \
 		\
 		if [ ! -d "$(DISTDIR)" ]; then \
