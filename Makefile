@@ -299,7 +299,7 @@ fetch:
 			elif [ "$$exitcode" = "18" -o "$$exitcode" = "28" -o "$$exitcode" = "56" ]; then \
 				continue; \
 			else \
-				exit 1; \
+				exit $$exitcode; \
 			fi; \
 			break; \
 		done; \
