@@ -14,7 +14,7 @@ else
 path = $(cwd)/
 endif
 
-cmds = search isearch esearch unpack
+cmds = search isearch esearch unpack dist-clean-all
 ifeq ($(cwd), .)
 cmds += link delink
 endif
@@ -398,6 +398,19 @@ dist-clean:
 		fi; \
 	done
 endif # ifneq ($(cwd), ../..)
+
+dist-clean-all:
+	@for i in $(cwd)/distfiles/*; do \
+		if [ ! -e "$$i" ]; then \
+			if [ -t 1 ]; then \
+				echo -e "\e[0;31m--> No sources were found in $(path)distfiles\e[0m" >&2; \
+			else \
+				echo "--> No sources were found in $(path)distfiles" >&2; \
+			fi; \
+			exit 1; \
+		fi; \
+		(cd $$($(MAKE) -s esearch name="$${i##*/}") && make -s dist-clean); \
+	done
 
 usage-msg:
 ifneq ($(cwd), ../..)

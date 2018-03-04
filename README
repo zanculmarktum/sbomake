@@ -41,6 +41,8 @@ Usage:
   To remove sources that don't exist in `.info` file:
     $ cd $(make search name=foo)
     $ make dist-clean
+  or for all packages:
+    $ make dist-clean-all
 
   To build a package:
     $ cd $(make search name=foo)
