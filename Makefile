@@ -254,7 +254,11 @@ _depends:
 	. ./$(package).info; \
 	for i in $$REQUIRES; do \
 		[ "$$i" = "%README%" ] && continue; \
-		path=$$($(MAKE) -s esearch name=$$i); \
+		if [ -d "$(path)local/$$i" ]; then \
+			path="$(path)local/$$i"; \
+		else \
+			path=$$($(MAKE) -s esearch name=$$i); \
+		fi; \
 		( cd $$path && $(MAKE) -s $@ ); \
 		echo $$path; \
 	done | awk '{ if (!dups[$$0]++) print }'
