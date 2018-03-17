@@ -499,7 +499,7 @@ ifdef name
 	for i in $$(git ls-tree -d --name-only HEAD); do \
 		for j in $$i/*; do \
 			echo "$${j#*/}"; \
-		done | awk '{ if (index(tolower($$0), "$(name)")) print "$(path)'$$i'/" $$0 }'; \
+		done | awk '{ if (index(tolower($$0), tolower("$(name)"))) print "$(path)'$$i'/" $$0 }'; \
 	done || true
 else
 	@echo "Usage: $(MAKE) $@ name=package" >&2
