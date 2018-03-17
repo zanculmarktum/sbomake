@@ -379,7 +379,7 @@ dist-clean:
 		[ "$$i" = "." -o "$$i" = ".." ] && continue; \
 		found=false; \
 		for j in $$url; do \
-			if [ "$$i" = "$${j##*/}" ]; then \
+			if [ "$$i" = "$${j##*/}" -o "$$i" = "$${j##*/}".part ]; then \
 				found=true; \
 				break; \
 			fi; \
