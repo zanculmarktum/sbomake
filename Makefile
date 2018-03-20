@@ -206,10 +206,16 @@ deinstall:
 	esac; \
 	\
 	found=false; \
-	for i in /var/log/packages/$$PRGNAM-$$VERSION-*; do \
+	for i in /var/log/packages/$$PRGNAM-*; do \
 		[ -f "$$i" ] || continue; \
-		found=true; \
-		break; \
+		j="$${i##*/}"; \
+		j="$${j%-*}"; \
+		j="$${j%-*}"; \
+		j="$${j%-*}"; \
+		if [ "$$j" = "$$PRGNAM" ]; then \
+			found=true; \
+			break; \
+		fi; \
 	done; \
 	if $$found; then \
 		/sbin/removepkg "$$i"; \
