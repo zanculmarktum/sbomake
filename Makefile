@@ -58,9 +58,7 @@ all:
 		found=true; \
 		break; \
 	done; \
-	if $$found && [ ! "$(force)" = "true" ]; then \
-		echo "==> Already built: $$i"; \
-	else \
+	if ! $$found || [ "$(force)" = "true" ]; then \
 		DELETED=$$(git diff-files --name-only --diff-filter=D --relative); \
 		if [ -n "$$DELETED" ]; then \
 			echo "==> Restoring upstream files..."; \
