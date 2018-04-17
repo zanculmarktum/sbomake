@@ -26,6 +26,9 @@ Usage:
   or the exact name:
     $ make esearch name=foo
 
+  To generate SlackBuild script:
+    $ make template
+
   To list dependencies:
     $ cd $(make search name=foo)
     $ make list-depends

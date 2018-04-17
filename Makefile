@@ -19,7 +19,7 @@ ifeq ($(cwd), .)
 cmds += link delink
 endif
 ifeq ($(cwd), ../..)
-cmds += fetch md5 dist-clean install deinstall clean list-depends list-depends-reverse
+cmds += fetch md5 dist-clean install deinstall clean list-depends list-depends-reverse template
 endif
 
 ifeq ($(cwd), ../..)
@@ -405,6 +405,83 @@ dist-clean:
 			fi; \
 		fi; \
 	done
+
+template:
+ifneq ($(and $(type), $(version), $(homepage), $(description), $(maintainer), $(email)),)
+	@echo "==> Creating SlackBuild script..."; \
+	if [ ! -f "$(package).SlackBuild" ]; then \
+		cp -p $(cwd)/templates/$(type)-template.SlackBuild $(package).SlackBuild; echo " => $(package).SlackBuild created"; \
+		x=$$(sed -ne '/^# |-----------------------------------------------------------------|/=' $(package).SlackBuild); \
+		a=$$(echo "$$x" | head -1); \
+		b=$$(echo "$$x" | tail -1); \
+		b=$$(($$b+1)); \
+		sed -i \
+			-e '/^# Slackware build script for /s/<appname>/$(package)/' \
+			-e "/^# Copyright/s/<year>/$$(date +%Y)/" \
+			-e '/^# Copyright/s/<you>/$(maintainer)/' \
+			-e '/^# Copyright/s/<where you live>/$(email)/' \
+			-e '/^PRGNAM=/s/=.*/=$(package)/' \
+			-e '/^VERSION=/s/\(VERSION:-\).*/\1$(version)}/' \
+			-e '/^TAG=/s/}.*/}/' \
+			-e '/# Automatically determine the architecture/d' \
+			-e '/# Unless $$ARCH is already set/d' \
+			-e '/^TMP=/s/}.*/}/' \
+			-e '/^OUTPUT=/s/}.*/}/' \
+			-e '/ # Exit on most errors/s/ #.*//' \
+			-e '/^\s*\\( -perm 777/s/^\s*/  /' \
+			-e '/^\s*-o -perm 511/s/^\s*/    /' \
+			-e '/^\s*\\( -perm 666/s/^\s*/  /' \
+			-e '/^\s*-o -perm 440/s/^\s*/    /' \
+			-e "$${a},$${b}d" \
+			$(package).SlackBuild; \
+		a=$$(sed -ne '/^# If you prefer/=' $(package).SlackBuild); \
+		b=$$(sed -ne '/^# then that/=' $(package).SlackBuild); \
+		if [ -n "$$a" -a -n "$$b" ]; then \
+			sed -i -e "$${a},$${b}d" $(package).SlackBuild; \
+		fi; \
+	fi; \
+	if [ ! -f "$(package).info" ]; then \
+		cp -p $(cwd)/templates/template.info $(package).info; echo " => $(package).info created"; \
+		sed -i \
+			-e '/^PRGNAM=/s/".*/"$(package)"/' \
+			-e '/^VERSION=/s/".*/"$(version)"/' \
+			-e '/^DOWNLOAD=/s/".*/""/' \
+			-e '/^MD5SUM=/s/".*/""/' \
+			-e '/^DOWNLOAD_x86_64=/s/".*/""/' \
+			-e '/^MD5SUM_x86_64=/s/".*/""/' \
+			-e '/^MAINTAINER=/s/".*/"$(maintainer)"/' \
+			-e '/^EMAIL=/s/".*/"$(email)"/' \
+			$(package).info; \
+		rm -f $(package).info.$$$$; \
+		while read line; do \
+			if [ "$${line#HOMEPAGE=}" != "$$line" ]; then \
+				echo 'HOMEPAGE="$(homepage)"' >> $(package).info.$$$$; \
+			else \
+				echo "$$line" >> $(package).info.$$$$; \
+			fi; \
+		done < $(package).info; \
+		mv -f $(package).info.$$$$ $(package).info; \
+	fi; \
+	[ -f "README" ] || { cp -p $(cwd)/templates/README .; echo " => README created"; }; \
+	[ -f "doinst.sh" ] || { cp -p $(cwd)/templates/doinst.sh .; echo " => doinst.sh created"; }; \
+	if [ ! -f "slack-desc" ]; then \
+		cp -p $(cwd)/templates/slack-desc . ; echo " => slack-desc created"; \
+		len=$$(printf "$(package):" | wc -c); \
+		s=""; \
+		i=1; \
+		while [ $$i -lt $$len ]; do \
+			s="$$s "; \
+			i=$$(($$i+1)); \
+		done; \
+		sed -i \
+			-e '/^appname:/s/appname (.*/$(package) ($(description))/' \
+			-e '/^appname:/s/^appname:/$(package):/' \
+			-e "/^\s*|-----handy-ruler/s/^\s*/$$s/" \
+			slack-desc; \
+	fi
+else
+	@echo "Usage: $(MAKE) $@ type=autotools|cmake|haskell|perl|python|rubygem version=1.2.3 homepage=example.com description=short-desc maintainer=your-name email=your-email"
+endif
 endif # ifneq ($(cwd), ../..)
 
 dist-clean-all:
