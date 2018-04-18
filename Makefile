@@ -105,7 +105,7 @@ all:
 				continue; \
 			fi; \
 			if [ ! -L "$${i##*/}" ]; then \
-				ln -srf "$$i" "$${i##*/}"; \
+				ln -sf "$$i" "$${i##*/}"; \
 				if [ "$$?" = "0" ]; then \
 					echo " => $${i##*/}@ linked"; \
 				else \
